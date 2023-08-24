@@ -181,3 +181,2741 @@ Encode time: 17771
 Send time: 1493
 Draw time: 831991
 [I 17:33:33.229 NotebookApp] New terminal with automatic name: 1
+[I 17:35:08.211 NotebookApp] Saving file at /Meilleur_HudsonBay.ipynb
+[I 17:41:08.983 NotebookApp] Saving file at /data.m
+[W 17:41:15.502 NotebookApp] Notebook generateFEEMplots.ipynb is not trusted
+[I 17:41:15.799 NotebookApp] Kernel started: 1ea245fe-4f60-4c94-91cb-0e270245f880, name: xoctave
+OpenGL vendor: VMware, Inc.
+OpenGL renderer: llvmpipe (LLVM 10.0.0, 128 bits)
+OpenGL version: 3.1 Mesa 20.0.8
+Run with XEUS 3.0.5
+Executing: % load the data. you have to restart kernel after every data change
+run("data.m")
+Executing: function [F,em,ex]=Fprocess(data,fraction,exmin,exmax,flag)
+
+[N,M]=size(data); c=0; if flag==1; data(data==0)=NaN; end
+
+for i=2:1:M
+    c=c+1; MIN=min(data(2:N,i)); F(:,c)=data(2:N,i)-min(data(2:N,i));
+end
+
+F=F'; ex=data(1,2:M); em=data(2:N,1); [N,M]=size(F);
+
+
+
+for i=1:N
+    for j=1:M
+        EM=em(j);
+        EX=ex(i);
+        if EM>=EX*(1-fraction)
+            if EM<=EX*(1+fraction)
+                F(i,j)=NaN;
+            end
+        end
+    end
+end
+  
+for i=1:N
+    for j=1:M
+        EM=em(j);
+        EX=ex(i);
+        if EM>=(2*EX)*(1-fraction)
+            if EM<=(2*EX)*(1+fraction)
+                F(i,j)=NaN;
+            end
+        end
+    end
+end
+
+% now modify for ex max and min
+
+c=0;
+for k=1:length(ex);
+    extst=ex(k);
+    if extst>exmin
+        if extst<exmax
+        c=c+1;
+        EXX(c)=extst;
+        FX(c,:)=F(k,:);
+        end
+    end
+end
+
+F=FX; ex=EXX;
+
+end
+Executing: 
+function [G,H,I]=resample(data,em,ex,samplefreq)
+
+% try to resample so things look better
+
+[N,M]=size(data); % M is em points N is ex points
+
+for i=1:N
+    Fem=data(i,:); c=0;
+    for j=1:round(M/samplefreq):M
+       c=c+1; Femred(c)=Fem(j); emred(c)=em(j);
+    end
+    datare(i,:)=Femred;
+end
+
+[N,M]=size(datare); % M is em points N is ex points.  sample into 10 steps.
+
+for i=1:M
+    Fex=datare(:,i); c=0;
+    for j=1:round(N/samplefreq):N
+       c=c+1;
+       Fexred(c)=Fex(j); exred(c)=ex(j);
+    end
+    datarere(:,i)=Fexred;
+end
+
+G=datarere;
+H=emred;
+I=exred;
+
+end
+Executing: function makesurfaceplot(F,em,ex)
+ colormap('jet'); shading interp
+ h=surf(em,ex,F);
+ set(gca,'linewidth',2)
+ view([-26 48])
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))*1.1])
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ h=zlabel('Intensity (arb.)'); set(h,'fontsize',12)
+end
+Executing: function makemeshplot(F,em,ex)
+ colormap('jet'); 
+ h=mesh(em,ex,F);
+ set(gca,'linewidth',2)
+ view([-26 48])
+ shading flat
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))*1.1])
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ h=zlabel('Intensity (arb.)'); set(h,'fontsize',12)
+end
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: function makesimplecontourplot(F,em,ex,num)
+ [C,h]=contour(em,ex,F,num,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex)])
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+end
+Executing: %contour plot over colourmap.
+scatterfactor=0.02; exmin=220; exmax=400; flag=1;
+[F,em,ex]=Fprocess(data,scatterfactor,exmin,exmax,flag);
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 669843
+Encode time: 16519
+Send time: 796
+Draw time: 704266
+Executing: %black and white contour plot
+% need to define the number of contour lines
+
+num=3;
+
+graphics_toolkit ("notebook"); 
+makesimplecontourplot(F,em,ex,num)
+Device pixel ratio: 1
+Render time: 335426
+Encode time: 14994
+Send time: 696
+Draw time: 366034
+Executing: %plot of all the data in 3D
+graphics_toolkit ("notebook"); 
+makesurfaceplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 448838
+Encode time: 33254
+Send time: 2217
+Draw time: 503342
+Executing: % resample the data to improve the appearance of the plot.  looks better if ex and
+% em are sampled at similar resolution
+% you need to set the samplefreq parameter
+graphics_toolkit ("notebook"); 
+samplefreq=20; %divide ex and em into samplereq equal steps.  so bigger number closer.
+[Fr,emr,exr]=resample(F,em,ex,samplefreq); %
+makesurfaceplot(Fr,emr,exr)
+Device pixel ratio: 1
+Render time: 430452
+Encode time: 21503
+Send time: 1409
+Draw time: 467737
+Executing: % resampled plot but with a wire mesh look
+graphics_toolkit ("notebook"); 
+makemeshplot(Fr,emr,exr)
+Device pixel ratio: 1
+Render time: 437199
+Encode time: 19962
+Send time: 1729
+Draw time: 473282
+Executing: % use the plotly plotting command to make the surface rotatable
+graphics_toolkit ("plotly"); 
+makesurfaceplot(F,em,ex)
+list
+string: 300
+list
+string: 400
+list
+string: 500
+list
+string: 600
+list
+string: 250
+list
+string: 300
+list
+string: 350
+list
+string: 0
+list
+string: 50
+list
+string: 100
+list
+string: 150
+list
+string: 200
+list
+string: Emission (nm)
+list
+string: Excitation (nm)
+list
+string: Excitation (nm)
+Executing: % print the plots as files for download.  also download data as a mat file
+% remove the comment below to generate the file for download
+
+%save data.mat F em ex
+
+%available_graphics_toolkits ()
+%graphics_toolkit ("fltk"); 
+
+%%% remove the comment (%) from the two commands below
+%makemeshplot(Fr,emr,exr)
+%print fig.png -dpng
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
+
+
+Executing: save data.mat F em ex Fr emr exr
+Executing: % load the data. you have to restart kernel after every data change
+run("data.m")
+Executing: function [F,em,ex]=Fprocess(data,fraction,exmin,exmax,flag)
+
+[N,M]=size(data); c=0; if flag==1; data(data==0)=NaN; end
+
+for i=2:1:M
+    c=c+1; MIN=min(data(2:N,i)); F(:,c)=data(2:N,i)-min(data(2:N,i));
+end
+
+F=F'; ex=data(1,2:M); em=data(2:N,1); [N,M]=size(F);
+
+
+
+for i=1:N
+    for j=1:M
+        EM=em(j);
+        EX=ex(i);
+        if EM>=EX*(1-fraction)
+            if EM<=EX*(1+fraction)
+                F(i,j)=NaN;
+            end
+        end
+    end
+end
+  
+for i=1:N
+    for j=1:M
+        EM=em(j);
+        EX=ex(i);
+        if EM>=(2*EX)*(1-fraction)
+            if EM<=(2*EX)*(1+fraction)
+                F(i,j)=NaN;
+            end
+        end
+    end
+end
+
+% now modify for ex max and min
+
+c=0;
+for k=1:length(ex);
+    extst=ex(k);
+    if extst>exmin
+        if extst<exmax
+        c=c+1;
+        EXX(c)=extst;
+        FX(c,:)=F(k,:);
+        end
+    end
+end
+
+F=FX; ex=EXX;
+
+end
+Executing: 
+function [G,H,I]=resample(data,em,ex,samplefreq)
+
+% try to resample so things look better
+
+[N,M]=size(data); % M is em points N is ex points
+
+for i=1:N
+    Fem=data(i,:); c=0;
+    for j=1:round(M/samplefreq):M
+       c=c+1; Femred(c)=Fem(j); emred(c)=em(j);
+    end
+    datare(i,:)=Femred;
+end
+
+[N,M]=size(datare); % M is em points N is ex points.  sample into 10 steps.
+
+for i=1:M
+    Fex=datare(:,i); c=0;
+    for j=1:round(N/samplefreq):N
+       c=c+1;
+       Fexred(c)=Fex(j); exred(c)=ex(j);
+    end
+    datarere(:,i)=Fexred;
+end
+
+G=datarere;
+H=emred;
+I=exred;
+
+end
+Executing: function makesurfaceplot(F,em,ex)
+ colormap('jet'); shading interp
+ h=surf(em,ex,F);
+ set(gca,'linewidth',2)
+ view([-26 48])
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))*1.1])
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ h=zlabel('Intensity (arb.)'); set(h,'fontsize',12)
+end
+Executing: function makemeshplot(F,em,ex)
+ colormap('jet'); 
+ h=mesh(em,ex,F);
+ set(gca,'linewidth',2)
+ view([-26 48])
+ shading flat
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))*1.1])
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ h=zlabel('Intensity (arb.)'); set(h,'fontsize',12)
+end
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: function makesimplecontourplot(F,em,ex,num)
+ [C,h]=contour(em,ex,F,num,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex)])
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+end
+Executing: %contour plot over colourmap.
+scatterfactor=0.02; exmin=250; exmax=500; flag=1;
+[F,em,ex]=Fprocess(data,scatterfactor,exmin,exmax,flag);
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 696718
+Encode time: 28615
+Send time: 1939
+Draw time: 747630
+Executing: %black and white contour plot
+% need to define the number of contour lines
+
+num=3;
+
+graphics_toolkit ("notebook"); 
+makesimplecontourplot(F,em,ex,num)
+Device pixel ratio: 1
+Render time: 331797
+Encode time: 16308
+Send time: 1087
+Draw time: 363638
+Executing: %plot of all the data in 3D
+graphics_toolkit ("notebook"); 
+makesurfaceplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 454320
+Encode time: 24992
+Send time: 1863
+Draw time: 499935
+Executing: % resample the data to improve the appearance of the plot.  looks better if ex and
+% em are sampled at similar resolution
+% you need to set the samplefreq parameter
+graphics_toolkit ("notebook"); 
+samplefreq=20; %divide ex and em into samplereq equal steps.  so bigger number closer.
+[Fr,emr,exr]=resample(F,em,ex,samplefreq); %
+makesurfaceplot(Fr,emr,exr)
+Device pixel ratio: 1
+Render time: 431174
+Encode time: 20566
+Send time: 1279
+Draw time: 467116
+Executing: % resampled plot but with a wire mesh look
+graphics_toolkit ("notebook"); 
+makemeshplot(Fr,emr,exr)
+Device pixel ratio: 1
+Render time: 431681
+Encode time: 19605
+Send time: 1721
+Draw time: 472737
+Executing: % use the plotly plotting command to make the surface rotatable
+graphics_toolkit ("plotly"); 
+makesurfaceplot(F,em,ex)
+list
+string: 300
+list
+string: 400
+list
+string: 500
+list
+string: 600
+list
+string: 300
+list
+string: 350
+list
+string: 400
+list
+string: 450
+list
+string: 0
+list
+string: 0.05
+list
+string: 0.1
+list
+string: 0.15
+list
+string: 0.2
+list
+string: 0.25
+list
+string: Emission (nm)
+list
+string: Excitation (nm)
+list
+string: Excitation (nm)
+Executing: % print the plots as files for download.  also download data as a mat file
+% remove the comment below to generate the file for download
+
+%save data.mat F em ex
+
+%available_graphics_toolkits ()
+%graphics_toolkit ("fltk"); 
+
+%%% remove the comment (%) from the two commands below
+%makemeshplot(Fr,emr,exr)
+%print fig.png -dpng
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
+
+
+Executing: save data.mat F em ex Fr emr exr
+[W 17:42:04.035 NotebookApp] Notebook fitFEEMtocomponents.ipynb is not trusted
+[I 17:42:04.266 NotebookApp] Kernel started: d082a005-9d84-4132-a4f8-a7f38e4ec1b1, name: xoctave
+OpenGL vendor: VMware, Inc.
+OpenGL renderer: llvmpipe (LLVM 10.0.0, 128 bits)
+OpenGL version: 3.1 Mesa 20.0.8
+Run with XEUS 3.0.5
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 665326
+Encode time: 28429
+Send time: 1600
+Draw time: 712423
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 538961
+Encode time: 17355
+Send time: 953
+Draw time: 583162
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+% brute force just write diff equation each different number of C (components)
+if C==1;
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1).^2)));
+    p0=[-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1);
+    Ffit=fitfcn(p);
+end
+if C==2
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2).^2)));
+    p0=[-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2);
+    Ffit=fitfcn(p);
+end
+if C==3
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3).^2)));
+    p0=[-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3);
+    Ffit=fitfcn(p);
+end
+if C==4
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4).^2)));
+    p0=[-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4);
+    Ffit=fitfcn(p);
+end
+if C==5
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+end
+
+if C==6
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6).^2)));
+    p0=[-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6);
+    Ffit=fitfcn(p);
+end
+
+if C==7
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7);
+    Ffit=fitfcn(p);
+end
+
+if C==8
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7+10^p(8).*F8).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7+p(8).*F8);
+    Ffit=fitfcn(p);
+end
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 612818
+Encode time: 17200
+Send time: 1355
+Draw time: 658058
+[I 17:43:15.704 NotebookApp] Saving file at /generateFEEMplots.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 668200
+Encode time: 28704
+Send time: 1989
+Draw time: 716148
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 549236
+Encode time: 15316
+Send time: 941
+Draw time: 583929
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+% brute force just write diff equation each different number of C (components)
+if C==1;
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1).^2)));
+    p0=[-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1);
+    Ffit=fitfcn(p);
+end
+if C==2
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2).^2)));
+    p0=[-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2);
+    Ffit=fitfcn(p);
+end
+if C==3
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3).^2)));
+    p0=[-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3);
+    Ffit=fitfcn(p);
+end
+if C==4
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4).^2)));
+    p0=[-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4);
+    Ffit=fitfcn(p);
+end
+if C==5
+    fcn=@(p)(sum(sum((FnoNaN-(10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)_.*F4+(10^p(5)).*F5).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+end
+
+if C==6
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6).^2)));
+    p0=[-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6);
+    Ffit=fitfcn(p);
+end
+
+if C==7
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7);
+    Ffit=fitfcn(p);
+end
+
+if C==8
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7+10^p(8).*F8).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7+p(8).*F8);
+    Ffit=fitfcn(p);
+end
+[I 17:44:04.147 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+[I 17:44:24.025 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 665908
+Encode time: 28632
+Send time: 1797
+Draw time: 711905
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 540996
+Encode time: 15826
+Send time: 910
+Draw time: 572877
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+% brute force just write diff equation each different number of C (components)
+if C==1;
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1).^2)));
+    p0=[-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1);
+    Ffit=fitfcn(p);
+end
+if C==2
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2).^2)));
+    p0=[-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2);
+    Ffit=fitfcn(p);
+end
+if C==3
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3).^2)));
+    p0=[-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3);
+    Ffit=fitfcn(p);
+end
+if C==4
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4).^2)));
+    p0=[-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4);
+    Ffit=fitfcn(p);
+end
+if C==5
+    fcn=@(p)(sum(sum((FnoNaN-(10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+end
+
+if C==6
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6).^2)));
+    p0=[-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6);
+    Ffit=fitfcn(p);
+end
+
+if C==7
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7);
+    Ffit=fitfcn(p);
+end
+
+if C==8
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7+10^p(8).*F8).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7+p(8).*F8);
+    Ffit=fitfcn(p);
+end
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 614858
+Encode time: 17178
+Send time: 1370
+Draw time: 648717
+[I 17:45:08.275 NotebookApp] Saving file at /Meilleur_HudsonBay.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 664518
+Encode time: 28192
+Send time: 1811
+Draw time: 710221
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 539533
+Encode time: 16303
+Send time: 985
+Draw time: 571480
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+% brute force just write diff equation each different number of C (components)
+if C==1;
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1).^2)));
+    p0=[-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1);
+    Ffit=fitfcn(p);
+end
+if C==2
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2).^2)));
+    p0=[-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2);
+    Ffit=fitfcn(p);
+end
+if C==3
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3).^2)));
+    p0=[-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3);
+    Ffit=fitfcn(p);
+end
+if C==4
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4).^2)));
+    p0=[-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4);
+    Ffit=fitfcn(p);
+end
+if C==5
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+end
+
+if C==6
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6).^2)));
+    p0=[-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6);
+    Ffit=fitfcn(p);
+end
+
+if C==7
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7);
+    Ffit=fitfcn(p);
+end
+
+if C==8
+    fcn=@(p)(sum(sum((FnoNaN-10^p(1).*F1+10^p(2).*F2+10^p(3).*F3+10^p(4).*F4+10^p(5).*F5+10^p(6).*F6+10^p(7).*F7+10^p(8).*F8).^2)));
+    p0=[-6;-6;-6;-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5+p(6).*F6+p(7).*F7+p(8).*F8);
+    Ffit=fitfcn(p);
+end
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 617044
+Encode time: 17767
+Send time: 1386
+Draw time: 669890
+[I 17:46:24.070 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+[I 17:48:24.116 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 684218
+Encode time: 28439
+Send time: 1639
+Draw time: 729832
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 539713
+Encode time: 15909
+Send time: 892
+Draw time: 570629
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    relativeerror=fval./(sum(sum(FnoNaN.^2)))
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 611713
+Encode time: 16956
+Send time: 1397
+Draw time: 645031
+[I 17:50:24.156 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 659801
+Encode time: 29153
+Send time: 1647
+Draw time: 709015
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 538188
+Encode time: 15991
+Send time: 918
+Draw time: 569239
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    residuals=sum(sum((F-Ffit)./F))
+
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 615204
+Encode time: 16683
+Send time: 1482
+Draw time: 648661
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 668694
+Encode time: 28794
+Send time: 1638
+Draw time: 715515
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 542189
+Encode time: 16130
+Send time: 1011
+Draw time: 574704
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    residuals=sum(sum((FnoNaN-Ffit)./F))
+
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 616224
+Encode time: 17921
+Send time: 1490
+Draw time: 652245
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 660326
+Encode time: 29326
+Send time: 1620
+Draw time: 706841
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 538218
+Encode time: 15904
+Send time: 894
+Draw time: 569067
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    residuals=sum(sum((FnoNaN-Ffit)./FnoNaN))
+
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 617139
+Encode time: 17266
+Send time: 1405
+Draw time: 651207
+[I 17:52:11.932 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[-6;-6;-6;-6;-6]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[1;1;1;1;1]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+
+[I 17:54:11.981 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+
+[I 17:56:12.020 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+    runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    txt=[runningtxt,'(10^p('istr',')).*F',istr,'+']
+end
+
+[I 17:58:12.061 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+    runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    txt=[runningtxt,'(10^p(',istr,')).*F',istr,'+']
+end
+
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+    runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+']
+end
+
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+    runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+']
+end
+
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+    runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+']
+end
+runningtxt=runningtext(1:length(runningtext)-1)
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+    runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+']
+end
+runningtxt=runningtxt(1:length(runningtxt)-1)
+[I 18:00:12.103 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+    fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+    p0=[2;2;2;2;2]; 
+    [pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+    runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+']
+end
+runningtxt=runningtxt(1:length(runningtxt)-1);
+txt=[runningtxt,')).^2)));']
+[I 18:02:12.151 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 674410
+Encode time: 28372
+Send time: 1873
+Draw time: 720789
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 539139
+Encode time: 15766
+Send time: 982
+Draw time: 577608
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=2;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1);
+txt=[runningtxt,')).^2)));']
+
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 616971
+Encode time: 17204
+Send time: 1360
+Draw time: 658253
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 663834
+Encode time: 28349
+Send time: 6390
+Draw time: 714789
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 553721
+Encode time: 16645
+Send time: 914
+Draw time: 592485
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=2;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+    fitfcn=@(p)(p(1).*F1+p(2).*F2+p(3).*F3+p(4).*F4+p(5).*F5);
+    Ffit=fitfcn(p);
+    sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 625831
+Encode time: 17234
+Send time: 1324
+Draw time: 659376
+[I 18:04:12.196 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 666126
+Encode time: 30951
+Send time: 1562
+Draw time: 720093
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 537691
+Encode time: 16754
+Send time: 895
+Draw time: 572925
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=2;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 617520
+Encode time: 17343
+Send time: 1309
+Draw time: 652108
+[I 18:06:12.237 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 682894
+Encode time: 28672
+Send time: 1599
+Draw time: 730302
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 545467
+Encode time: 15949
+Send time: 934
+Draw time: 581036
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 615344
+Encode time: 16719
+Send time: 1343
+Draw time: 649517
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 666645
+Encode time: 28967
+Send time: 1703
+Draw time: 712709
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 546870
+Encode time: 16701
+Send time: 891
+Draw time: 578573
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=4;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 623345
+Encode time: 18770
+Send time: 1401
+Draw time: 659050
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 658751
+Encode time: 28842
+Send time: 1698
+Draw time: 705932
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 539168
+Encode time: 16183
+Send time: 1169
+Draw time: 571051
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=2.5;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 616126
+Encode time: 17183
+Send time: 1618
+Draw time: 650214
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 695410
+Encode time: 29537
+Send time: 1880
+Draw time: 743448
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 542765
+Encode time: 16136
+Send time: 930
+Draw time: 574583
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3.5;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 619899
+Encode time: 17919
+Send time: 11125
+Draw time: 679553
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 663019
+Encode time: 28285
+Send time: 1804
+Draw time: 709193
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 538072
+Encode time: 16186
+Send time: 981
+Draw time: 569552
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 613476
+Encode time: 25436
+Send time: 1343
+Draw time: 662969
+[I 18:08:12.297 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+optval=optimget(options,fminmsearch)
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+optval=optimget(options,fminsearch)
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+[I 18:14:12.377 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset()
+[pmin,fval]=fminsearch(fcn,p0); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',100)
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',200);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',300);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',1000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+[I 18:16:12.443 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=2;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=1;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=4;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=2;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=1;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=1;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','on');
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=1;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','iter');
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+[I 18:18:12.512 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 673437
+Encode time: 29338
+Send time: 1602
+Draw time: 720883
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 543447
+Encode time: 16528
+Send time: 1026
+Draw time: 585683
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=1;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','off','TolFun',1e-5,'TolX',1e-5);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 622245
+Encode time: 17576
+Send time: 1318
+Draw time: 656968
+Executing: % load the data. you have to restart kernel after every data change
+load data.mat
+Executing: function makecontourplot(F,em,ex)
+ colormap('jet')
+ h=surf(em,ex,F);
+ shading interp
+ hold on; [C,h]=contour3(em,ex,F,3,'k'); set(h,'linewidth',2); 
+ set(gca,'linewidth',2,'fontsize',12)
+ axis([min(em) max(em) min(ex) max(ex) 0 max(max(F))])
+ view([0 90])
+ hold on; plot3([250 600],[450 450],[0 0],'k','linewidth',2)
+ hold on; plot3([600 600],[220 450],[0 0],'k','linewidth',2)
+ h=xlabel('Emission (nm)'); set(h,'fontsize',12)
+ h=ylabel('Excitation (nm)');  set(h,'fontsize',12)
+ %add scale bar
+ colorbar 
+end
+Executing: %contour plot over colourmap.
+graphics_toolkit ("notebook"); 
+makecontourplot(F,em,ex)
+Device pixel ratio: 1
+Render time: 662968
+Encode time: 29461
+Send time: 1811
+Draw time: 710418
+Executing: % load the model
+
+load ID15154.mat %ex 250-500 em 300-350
+
+% interpolate over this em and ex for the dataset
+
+for i=1:C
+    istr=num2str(i);
+    txt=['Cem',istr','i=interp1(Cem,Cem',istr,',em); Cem',istr,'i(isnan(Cem',istr,'i))=0;'];
+    eval(txt)
+    txt=['Cex',istr','i=interp1(Cex,Cex',istr,',ex); Cex',istr,'i(isnan(Cex',istr,'i))=0;'];
+    eval(txt)
+    %Cex1i=interp1(Cex,Cex1,ex); Cex1i(isnan(Cex1i))=0; 
+    %size(Cex1i)
+    %size(Cem1i)
+    txt=['F',istr,'=Cex',istr,'i''*Cem',istr,'i'';']; eval(txt);
+    subplot(3,3,i); hold on;
+    txt=['contour(em,ex,F',istr,')']; eval(txt)
+    title(istr)
+end
+    
+Device pixel ratio: 1
+Render time: 536807
+Encode time: 15871
+Send time: 909
+Draw time: 568970
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=1;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','iter','TolFun',1e-5,'TolX',1e-5);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: subplot(221)
+contour(em,ex,F)
+subplot(222)
+contour(em,ex,Ffit)
+subplot(223)
+contour(em,ex,F-Ffit)
+Device pixel ratio: 1
+Render time: 737367
+Encode time: 21578
+Send time: 1544
+Draw time: 779400
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=2;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','off','TolFun',1e-5,'TolX',1e-5);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=3;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','off','TolFun',1e-5,'TolX',1e-5);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=0.5;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','off','TolFun',1e-5,'TolX',1e-5);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+Executing: % fit to a linear model
+FnoNaN=F; FnoNaN(isnan(FnoNaN))=0; % get rid of NaN in the original matrix
+
+%fcn=@(p)(sum(sum((FnoNaN-((10^p(1)).*F1+(10^p(2)).*F2+(10^p(3)).*F3+(10^p(4)).*F4+(10^p(5)).*F5)).^2)));
+%p0=[2;2;2;2;2]; 
+    
+runningtxt=['fcn=@(p)(sum(sum((FnoNaN-('];
+for i=1:C
+    istr=num2str(i);
+    runningtxt=[runningtxt,'(10^p(',istr,')).*F',istr,'+'];
+    p0(i)=1;
+end
+runningtxt=runningtxt(1:length(runningtxt)-1); txt=[runningtxt,')).^2)));']; eval(txt);
+options=optimset('MaxFunEvals',10000,'display','off','TolFun',1e-5,'TolX',1e-5);
+[pmin,fval]=fminsearch(fcn,p0,options); p=10.^pmin
+
+Ffit=zeros(size(F));
+for i=1:C
+    istr=num2str(i);
+    txt=['Ffit=Ffit+p(i)*F',istr,';']; eval(txt);
+end
+sumF=sum(sum(FnoNaN)); sumFfit=sum(sum(Ffit)); overallfit=100*((sumF-sumFfit)./sumF)
+    
+[I 18:20:10.373 NotebookApp] Saving file at /fitFEEMtocomponents.ipynb
