@@ -1,0 +1,183 @@
+[I 17:22:11.544 NotebookApp] Writing notebook server cookie secret to /home/jovyan/.local/share/jupyter/runtime/notebook_cookie_secret
+[I 17:22:11.545 NotebookApp] Authentication of /metrics is OFF, since other authentication is disabled.
+[W 17:22:12.018 NotebookApp] All authentication is disabled.  Anyone who can connect to this server will be able to run code.
+[W 2023-08-24 17:22:12.989 LabApp] 'ip' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2023-08-24 17:22:12.989 LabApp] 'token' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2023-08-24 17:22:12.989 LabApp] 'password' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2023-08-24 17:22:12.989 LabApp] 'password' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[I 2023-08-24 17:22:13.003 LabApp] JupyterLab extension loaded from /srv/conda/envs/notebook/lib/python3.7/site-packages/jupyterlab
+[I 2023-08-24 17:22:13.003 LabApp] JupyterLab application directory is /srv/conda/envs/notebook/share/jupyter/lab
+[I 17:22:13.015 NotebookApp] nteract extension loaded from /srv/conda/envs/notebook/lib/python3.7/site-packages/nteract_on_jupyter
+[I 17:22:13.018 NotebookApp] Serving notebooks from local directory: /home/jovyan
+[I 17:22:13.018 NotebookApp] Jupyter Notebook 6.4.12 is running at:
+[I 17:22:13.018 NotebookApp] http://224710f94f77:8888/
+[I 17:22:13.018 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[W 17:22:13.033 NotebookApp] No web browser found: could not locate runnable browser.
+[W 17:30:58.868 NotebookApp] Collisions detected in /home/jovyan/.jupyter/jupyter_notebook_config.py and /home/jovyan/.jupyter/jupyter_notebook_config.json config files. /home/jovyan/.jupyter/jupyter_notebook_config.json has higher priority: {
+      "NotebookApp": {
+        "password": "'' ignored, using 'argon2:$argon2id$v=19$m=10240,t=10,p=8$/fSiCL0Y4BAZ64DFpjk8rw$qz6cDFvDzhPi3tcrOMpbg6WuwJes1K+WEcmhYQpyTPk'"
+      }
+    }
+[W 2023-08-24 17:31:00.250 LabApp] 'ip' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2023-08-24 17:31:00.251 LabApp] 'token' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2023-08-24 17:31:00.251 LabApp] 'password' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2023-08-24 17:31:00.251 LabApp] 'password' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[I 2023-08-24 17:31:00.265 LabApp] JupyterLab extension loaded from /srv/conda/envs/notebook/lib/python3.7/site-packages/jupyterlab
+[I 2023-08-24 17:31:00.265 LabApp] JupyterLab application directory is /srv/conda/envs/notebook/share/jupyter/lab
+[I 17:31:00.275 NotebookApp] nteract extension loaded from /srv/conda/envs/notebook/lib/python3.7/site-packages/nteract_on_jupyter
+[I 17:31:00.277 NotebookApp] Serving notebooks from local directory: /home/jovyan
+[I 17:31:00.277 NotebookApp] Jupyter Notebook 6.4.12 is running at:
+[I 17:31:00.277 NotebookApp] http://224710f94f77:8888/
+[I 17:31:00.278 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[W 17:31:00.291 NotebookApp] No web browser found: could not locate runnable browser.
+[I 17:32:29.182 NotebookApp] 302 GET / (172.25.0.1) 1.150000ms
+[I 17:32:29.187 NotebookApp] 302 GET /tree? (172.25.0.1) 1.260000ms
+[W 17:32:42.985 NotebookApp] 401 POST /login?next=%2Ftree%3F (172.25.0.1) 153.900000ms referer=https://jupyter7.clearnasdss.synology.me/login?next=%2Ftree%3F
+[I 17:32:47.352 NotebookApp] 302 POST /login?next=%2Ftree%3F (172.25.0.1) 178.130000ms
+[I 17:32:58.756 NotebookApp] 301 GET /static/favicons/favicon.ico (172.25.0.1) 16.630000ms
+[I 2023-08-24 17:33:02.369 LabApp] Build is up to date
+[I 17:33:08.131 NotebookApp] Writing notebook-signing key to /home/jovyan/.local/share/jupyter/notebook_secret
+[W 17:33:08.132 NotebookApp] Notebook Meilleur_HudsonBay.ipynb is not trusted
+[I 17:33:08.394 NotebookApp] Kernel started: b3d4517a-1a32-414b-a4a4-eb8c77c37221, name: xoctave
+Serving notebooks from local directory: /home/jovyan
+1 active kernel
+Jupyter Notebook 6.4.12 is running at:
+http://224710f94f77:8888/
+OpenGL vendor: VMware, Inc.
+OpenGL renderer: llvmpipe (LLVM 10.0.0, 128 bits)
+OpenGL version: 3.1 Mesa 20.0.8
+Run with XEUS 3.0.5
+[I 17:33:09.283 NotebookApp] 301 GET /static/favicons/favicon-busy-1.ico (172.25.0.1) 6.150000ms
+[W 17:33:09.302 NotebookApp] Got events for closed stream <zmq.eventloop.zmqstream.ZMQStream object at 0x7f0700b96d90>
+Executing: % model paste from openfluor website
+
+ID='ID15154';
+
+exmodel=[...
+250	0.218176585	0.168302759	0.585327196	0.183079511	0.180093286
+255	0.231006466	0.199130969	0.483234213	0.169057867	0.204822633
+260	0.231269972	0.225323908	0.398721904	0.150429951	0.247579292
+265	0.221471462	0.238006404	0.328322577	0.132661549	0.301068054
+270	0.207501859	0.241636881	0.26397234	0.130751018	0.355649133
+275	0.195198804	0.237377045	0.205108476	0.148101944	0.395619243
+280	0.189501356	0.22875504	0.148165351	0.179775853	0.413609417
+285	0.190952362	0.220150928	0.095650848	0.22654832	0.375459466
+290	0.195347115	0.208984374	0.060255301	0.267829805	0.317011648
+295	0.19819746	0.197235017	0.042917039	0.30340138	0.215727092
+300	0.201568224	0.183043908	0.038463677	0.316008892	0.142879815
+305	0.20574408	0.171749455	0.035417305	0.316565851	0.101994953
+310	0.212501186	0.167343363	0.022399959	0.314998153	0.017433192
+315	0.212188147	0.160518784	0.020630357	0.291892532	0.004236505
+320	0.210232293	0.155217724	0.022266581	0.261466475	0
+325	0.207846669	0.151800946	0.024329154	0.228925297	0
+330	0.203162192	0.149521071	0.027891461	0.199796593	0
+335	0.199321459	0.148093505	0.025896652	0.166984954	0
+340	0.19346276	0.146828263	0.029160553	0.133450898	0
+345	0.186342926	0.147145343	0.024526006	0.104777561	0
+350	0.176749079	0.147237909	0.01938387	0.076438083	0
+355	0.165223317	0.147241976	0.017588371	0.04816192	0.015027512
+360	0.154750077	0.149730044	0.014676739	0.029178795	0.010410052
+365	0.141454196	0.152138819	0.012698236	0.013159567	0.008334752
+370	0.127551312	0.153164608	0.008080632	0.002810242	0.006297771
+375	0.111076828	0.151548331	0	0	0.003587693
+380	0.090721119	0.144545961	0	0	0.001011496
+385	0.072571562	0.137361525	0	0	0.000541948
+390	0.057035737	0.128974401	0	0	0.000521971
+395	0.04355956	0.120152589	0	0	0.000681332
+400	0.033066638	0.110706565	0	0	0.00058611
+405	0.024188422	0.10212737	0	0	0.00069892
+410	0.016384956	0.094698299	0	0.003060867	5.99833E-6
+415	0.010019678	0.087363163	0	0.006788178	0
+420	0.005421261	0.080514731	0	0.007966111	0
+425	0.001413574	0.073154898	0	0.005768546	0
+430	0	0.065174619	0	0.002216874	0
+435	0	0.056733387	0	0	0.000134436
+440	0	0.048612379	0	0	2.63948E-5
+445	0	0.041972153	0	0	1.30401E-5
+450	0	0.036817831	0	2.05E-5	9.1149E-6
+455	0	0.032817713	0	0.000153024	0
+460	0	0.029006838	0	0.000200591	0
+465	0	0.025704941	0	0.000195814	0
+470	0	0.023069038	0	0.000157844	2.77719E-5
+475	0	0.02097958	0	0.000119224	6.23524E-5
+480	0	0.018990594	0	8.70858E-5	7.06342E-5
+485	0	0.017225221	0	1.35939E-5	9.3625E-5
+490	0	0.015735631	0	0	7.09325E-5
+495	0	0.014271625	0	0	3.2375E-5
+500	0	0.01330732	0	0	3.9368E-6];
+
+emmodel=[...
+300	0	0	0.004955387	0	0.265485421
+305	0	0	0.008645647	0.012617847	0.275135682
+310	0	0	0.013420401	0.022437736	0.284302626
+315	0	0	0.018052142	0.032130619	0.291516398
+320	0	0	0.021934047	0.042036486	0.297935957
+325	0	0	0.025973344	0.052315935	0.301827148
+330	0	0	0.028642163	0.064816155	0.296860809
+335	0	0	0.034514063	0.077684875	0.291361326
+340	0	0	0.038399262	0.09483903	0.275972584
+345	0	0	0.045478781	0.115916023	0.252793948
+350	0	0	0.055088204	0.140851752	0.229859924
+355	0	0	0.064305768	0.171166245	0.200169946
+360	0	0	0.076240935	0.205228882	0.169687979
+365	0	0	0.090688112	0.24087197	0.140024724
+370	0	0.007028938	0.103364698	0.269535123	0.115382688
+375	0.008400273	0.011480703	0.115079964	0.288385621	0.09726444
+380	0.032824227	0.003828622	0.125802324	0.296865245	0.082173614
+385	0.056622008	0	0.137736258	0.301593812	0.070501429
+390	0.080143731	0	0.151431875	0.304101543	0.058709408
+395	0.107216864	0	0.160503314	0.294726973	0.049888304
+400	0.136299506	0	0.169123385	0.27894588	0.041931198
+405	0.167647572	0	0.174859391	0.255213273	0.037592055
+410	0.19857631	0	0.180535942	0.22643297	0.033431345
+415	0.229303994	0	0.184583395	0.194121043	0.031394089
+420	0.258537128	0	0.188064761	0.160321484	0.029954858
+425	0.277592715	0.008314782	0.191069863	0.12850248	0.028901286
+430	0.284426621	0.026625739	0.194420595	0.103056278	0.025691323
+435	0.289521701	0.044663918	0.195119251	0.078192992	0.02640944
+440	0.290374894	0.06536853	0.197335821	0.05614926	0.025427467
+445	0.283720802	0.088319097	0.197662023	0.036716409	0.023890625
+450	0.271731288	0.11303532	0.197739033	0.019986045	0.022623007
+455	0.257360455	0.136248775	0.195942029	0.006979459	0.021675182
+460	0.234843112	0.159523004	0.192823247	0	0.019711528
+465	0.20975397	0.182120536	0.190750471	0	0.016574702
+470	0.182971215	0.201494603	0.185940844	0	0.013943248
+475	0.162271254	0.218217204	0.18310865	0	0.011795987
+480	0.140249325	0.229858515	0.17831442	0	0.010298016
+485	0.121967877	0.238346843	0.172575789	0	0.01017775
+490	0.105283295	0.245547951	0.16782308	0	0.009400552
+495	0.090114495	0.248292095	0.162193152	0	0.009604022
+500	0.074976374	0.25065121	0.156807487	0	0.00903529
+505	0.060329735	0.250729957	0.150928989	0.001903783	0.009387381
+510	0.044794755	0.249182047	0.145746908	0.006097375	0.007790169
+515	0.031744509	0.245760069	0.139739167	0.010293402	0.007439787
+520	0.01997017	0.240359088	0.133798826	0.014184769	0.008227276
+525	0.011329104	0.234258737	0.126051488	0.016223009	0.009047612
+530	0.003353984	0.226860542	0.120472903	0.017621456	0.009081306
+535	0	0.217691395	0.113047751	0.017217792	0.010421638
+540	0	0.206672894	0.105021484	0.015423643	0.012816793
+545	0	0.196107942	0.096050401	0.014136771	0.015718013
+550	0	0.185304644	0.088136222	0.012596594	0.018277527];
+Executing: Cex=exmodel(:,1); Cem=emmodel(:,1); % pull ex and em from the data
+C=size(exmodel,2)-1;% the number of components
+EXmodel=exmodel(:,2:C+1); EMmodel=emmodel(:,2:C+1);
+
+txt=['save ',ID,'.mat C Cex Cem']; eval(txt)
+
+% make a loop to make a matrix for each component
+for i=1:1:C
+    istr=num2str(i); 
+    txt=['Cex',istr,'=EXmodel(:,i);']; eval(txt)
+    txt=['save ',ID,'.mat Cex',istr,' -append']; eval(txt)
+    txt=['Cem',istr,'=EMmodel(:,i);']; eval(txt)
+    txt=['save ',ID,'.mat Cem',istr,' -append']; eval(txt)
+    FEEM=EXmodel(:,i)*EMmodel(:,i)';
+    subplot(3,3,i); contour(Cem,Cex,FEEM); hold on
+    title(istr)
+end
+Device pixel ratio: 1
+Render time: 796895
+Encode time: 17771
+Send time: 1493
+Draw time: 831991
+[I 17:33:33.229 NotebookApp] New terminal with automatic name: 1
