@@ -3,3 +3,7 @@
 
 # ignore .ipynb_checkpoints
 .ipynb_checkpoints
+
+# ingore local trash
+**/Trash/
+
