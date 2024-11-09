@@ -1,5 +1,6 @@
 # ignore data to keep student data private
 /data
+/Harper
 
 # ignore .ipynb_checkpoints
 .ipynb_checkpoints
